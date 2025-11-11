@@ -25,10 +25,21 @@ int main(void) {
         unsigned long  i;                                                   // loop variable
         int is_prime = 1;                                                   // assume the number is prime first
 
-        printf("Enter a number: ");                                         //prompt user to enter a number
-        if (scanf("%lu", &n) != 1) {                                        //reads user input stored in n, expected to read an unsigned long int
-            return 1;  
-        }
+        int valid_input;                                                    // variable to track if input is valid (mirrors pseudocode's valid_input)
+
+        // === Input validation loop (matches pseudocode) ===
+        do {
+            printf("Enter a number: ");                                     //prompt user to enter a number
+            valid_input = scanf("%lu", &n);                                 //reads user input stored in n, expected to read an unsigned long int
+
+            if (valid_input != 1) {                                         // check if user entered a valid number
+                printf("Invalid input! Please enter a number.\n");          // notify user of invalid input
+                while (getchar() != '\n');                                  // clear the input buffer
+                valid_input = 0;                                            // mark as invalid (same idea as pseudocode)
+            } else {
+                valid_input = 1;                                            // mark as valid
+            }
+        } while (valid_input == 0);                                         // repeat until valid number is entered
 
         if (n < 2LU) {                                                      //As numbers below 2 are not prime numbers, we can say that if n < 2, it is not prime
             printf("The keyed-in number %lu is not a prime number\n", n);   //prints out that input user keyed in is not prime
