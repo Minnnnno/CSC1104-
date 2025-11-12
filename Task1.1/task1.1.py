@@ -23,14 +23,14 @@ while True:                                                                   # 
                 break                                                         # Stop as soon as we find a divisor
             i += 1
         end_time = time.perf_counter()                                        # stop measurement of computation time
-        execution_time = (end_time - start_time) * 1000                       # Ex time = end time - start time and show it in milliseconds
+        execution_time = (end_time - start_time) * 1000000                       # Ex time = end time - start time and show it in milliseconds
 
         if not is_prime:
             print(f"The keyed-in number {n} is not a prime number")           # if not prime number, print out message
         else:
             print(f"The key-in number {n} is a prime number")                 # Print the number if it’s prime
 
-        print(f"[Timing] Prime check executed in {execution_time:.3f} milliseconds")
+        print(f"[Timing] Prime check executed in {execution_time:.3f} microseconds")
 
     
     choice = input("\nDo you want to run the program again? (Y/N): ").strip().lower()

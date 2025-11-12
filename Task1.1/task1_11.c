@@ -1,15 +1,15 @@
-#define _POSIX_C_SOURCE 200809L   // ensure clock_gettime and CLOCK_* are exposed
-#include <stdio.h>      // for printf, scanf
-#include <time.h>       // for clock_gettime(), struct timespec
+#define _POSIX_C_SOURCE 200809L                                                 // ensure clock_gettime and CLOCK_* are exposed
+#include <stdio.h>                                                             // for printf, scanf
+#include <time.h>                                                                // for clock_gettime(), struct timespec
 
 static inline double secdiff(struct timespec a, struct timespec b) {          // Calculates the difference between two timestamps (in seconds)
     return (b.tv_sec - a.tv_sec) + (b.tv_nsec - a.tv_nsec) / 1e9;               // Used to measure elapsed time with nanosecond precision
 }
 #ifndef MONO_CLOCK
   #ifdef CLOCK_MONOTONIC_RAW
-    #define MONO_CLOCK CLOCK_MONOTONIC_RAW    // high-res, monotonic
+    #define MONO_CLOCK CLOCK_MONOTONIC_RAW                                      // high-res, monotonic
   #elif defined(CLOCK_MONOTONIC)
-    #define MONO_CLOCK CLOCK_MONOTONIC        // portable fallback
+    #define MONO_CLOCK CLOCK_MONOTONIC                                           // portable fallback
   #else
     #define MONO_CLOCK 0
   #endif
@@ -27,7 +27,7 @@ int main(void) {
 
         int valid_input;                                                    // variable to track if input is valid (mirrors pseudocode's valid_input)
 
-        // === Input validation loop (matches pseudocode) ===
+        // Input validation loop
         do {
             printf("Enter a number: ");                                     //prompt user to enter a number
             valid_input = scanf("%lu", &n);                                 //reads user input stored in n, expected to read an unsigned long int
@@ -43,7 +43,6 @@ int main(void) {
 
         if (n < 2LU) {                                                      //As numbers below 2 are not prime numbers, we can say that if n < 2, it is not prime
             printf("The keyed-in number %lu is not a prime number\n", n);   //prints out that input user keyed in is not prime
-            printf("[Timing] Prime check executed in N/A (no computation)\n");
         } else {
 
           
@@ -60,7 +59,7 @@ int main(void) {
 
           
             clock_gettime(MONO_CLOCK, &t1);                              //stop timing     
-            double execution_time = secdiff(t0, t1) * 1000.0;
+            double execution_time = secdiff(t0, t1) *  1e6;
 
             if (is_prime == 0) {                                            //if is_prime ==0 
                 printf("The keyed-in number %lu is not a prime number\n", n); //Print out the message "The keyed-in number xxx is not a prime number "
@@ -68,7 +67,7 @@ int main(void) {
                 printf("The keyed-in number %lu is  a prime number\n", n);  // just print the number if prime
             }
 
-            printf("[Timing] Prime check executed in %.3f milliseconds\n", execution_time);
+            printf("[Timing] Prime check executed in %.3f microseconds\n", execution_time);
         }
 
         

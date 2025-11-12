@@ -33,7 +33,7 @@ int main(void) {
 
           
             clock_t end_time = clock();                                     //end measurement   
-            double execution_time = (double)(end_time - start_time) * 1000.0 / CLOCKS_PER_SEC;
+            double execution_time = (double)(end_time - start_time) * 1e6 / CLOCKS_PER_SEC;
 
             if (is_prime == 0) {                                            //if is_prime ==0 
                 printf("The keyed-in number %lu is not a prime number\n", n); //Print out the message "The keyed-in number xxx is not a prime number "
@@ -41,7 +41,7 @@ int main(void) {
                 printf("The keyed-in number %lu is  a prime number\n", n);  // just print the number if prime
             }
 
-            printf("[Timing] Prime check executed in %.3f milliseconds\n", execution_time);
+            printf("[Timing] Prime check executed in %.3f microseconds\n", execution_time);
         }
 
         
