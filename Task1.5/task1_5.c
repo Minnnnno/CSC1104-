@@ -2,7 +2,12 @@
 #include <dirent.h>       //library to open, read and close directory
 #include <string.h>       //library so that we can use string helpers (e.g. strrchr, strcmp)
 #include <stdlib.h>       //library to use system() function for shell commands
-#include <time.h>         //for clock() timing
+#include <time.h>         //for clock_gettime() timing
+
+// helper function to calculate difference between two timespecs in milliseconds
+static inline double secdiff(struct timespec start, struct timespec end) {
+    return (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;   // converts to milliseconds
+}
 
 int main(void) {
 
@@ -10,9 +15,13 @@ int main(void) {
     struct dirent * entry;                                 //entry pointer, used to read each file inside the directory
     int txt_count = 0;                                     //set txt_count to 0, which counts the number of .txt files
 
+    struct timespec t_total0, t_total1;                    // declare timespec structs for total timing
+    struct timespec t_list0, t_list1;                      // declare timespec structs for listing timing
+    struct timespec t_zip0, t_zip1;                        // declare timespec structs for compression timing
+
     // START total timing 
-    clock_t t_total0 = clock();                            //record start clock time
-    
+    clock_gettime(CLOCK_MONOTONIC, &t_total0);             //record start clock time using monotonic clock
+        
 
     directory = opendir(".");                              //open the current working directory
     if (directory == NULL) {                               //if directory fails to open
@@ -23,8 +32,8 @@ int main(void) {
     printf("All of the .txt files in this directory are as follows:\n");  //header message before listing starts
 
     // START listing timing
-    clock_t t_list0 = clock();                             //record start time for listing
-    
+    clock_gettime(CLOCK_MONOTONIC, &t_list0);              //record start time for listing
+        
 
     while ((entry = readdir(directory)) != NULL) {         //loop to read each file/folder name one by one
         const char *filename = entry->d_name;              //get the file name
@@ -36,8 +45,8 @@ int main(void) {
         }
     }
 
-    clock_t t_list1 = clock();                             //record end time for listing
-    double list_ms = ((double)(t_list1 - t_list0) / CLOCKS_PER_SEC) * 1000.0;  //convert to milliseconds
+    clock_gettime(CLOCK_MONOTONIC, &t_list1);              //record end time for listing
+    double list_ms = secdiff(t_list0, t_list1);            //convert to milliseconds
     // ---------- END listing timing ------------
 
     if (closedir(directory) == -1) {                       //try to close the directory; if fail, returns -1
@@ -51,11 +60,12 @@ int main(void) {
 
     if (txt_count > 0) {                                   //if there are .txt files, then proceed to compress
         // START compression timing
-        clock_t t_zip0 = clock();                          //record start clock time for compression
+        clock_gettime(CLOCK_MONOTONIC, &t_zip0);           //record start clock time for compression
         
         int rc = system("zip -q -T mytxt.zip -- *.txt");   //run shell command to compress all .txt files into mytxt.zip
-        clock_t t_zip1 = clock();                          //record end clock time for compression
-        zip_ms = ((double)(t_zip1 - t_zip0) / CLOCKS_PER_SEC) * 1000.0;  //convert to milliseconds
+        
+        clock_gettime(CLOCK_MONOTONIC, &t_zip1);           //record end clock time for compression
+        zip_ms = secdiff(t_zip0, t_zip1);                  //convert to milliseconds
         //END compression timing
 
         if (rc == 0) {                                     //if zip command runs successfully
@@ -69,8 +79,8 @@ int main(void) {
     }
 
     // END total timing 
-    clock_t t_total1 = clock();                            //record end clock time for total
-    double total_ms = ((double)(t_total1 - t_total0) / CLOCKS_PER_SEC) * 1000.0;
+    clock_gettime(CLOCK_MONOTONIC, &t_total1);             //record end clock time for total
+    double total_ms = secdiff(t_total0, t_total1);         //convert to milliseconds
     
 
     // Print all timing results
