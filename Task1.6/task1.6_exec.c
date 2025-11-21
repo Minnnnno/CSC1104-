@@ -4,6 +4,11 @@
 #include <string.h>
 #include <time.h>
 
+// Time Measure
+double get_elapsed(struct timespec start, struct timespec end) {
+    return (end.tv_sec - start.tv_sec) *1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6 ;
+}
+
 // Page Table
 int8_t PAGE[32] = 
 {
@@ -71,8 +76,8 @@ int16_t get_addr(int8_t page_num, int16_t offset){                      // Funct
     return(int16_t)((page_num << 8)|offset);                            // Produce the result of computation of result
 }
 
-int8_t translate_to_frame_page(int vpn){                                   // Function to translate vpn into frame from page table
-    return(PAGE[vpn]);                                                  // Produce the result of frame
+int translate_to_frame_page(int vpn){                                   // Function to translate vpn into frame from page table
+    return(PAGE[vpn]);                                                  // Produce the result of frame 
 }
 
 static void print_addr (int16_t value)                                  // Function to output address with readability
@@ -94,30 +99,42 @@ int main()
 
     get_virtual_page(vpn_bits, offset_bits);                            // Calling function to obtain valid data input for vpn_bits, offset_bits
 
+
+    
     // Convert bit-strings to integers
     int8_t vpn = bin_to_dec(vpn_bits);                                      // Convert the result of input from base 2 to base 10 in memory
     int16_t offset = bin_to_dec(offset_bits);                                   // Convert the result of input from base 2 to base 10 in memory       
 
-    // 13-bit virtual address      <-5 bits->|<-8 bits->
-    int16_t v_addr = get_addr(vpn, offset);                                     // Call function to produce virtual address with vpn and offset
+    struct timespec start,end;
+    int iterations = 1000;
+    // --- Start timer ---
+    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+    for (int i = 0; i < iterations; i++) {
+        // 13-bit virtual address      <-5 bits->|<-8 bits->
+        int16_t v_addr = get_addr(vpn, offset);                                     // Call function to produce virtual address with vpn and offset
 
-    printf("The virtual memory address you keyed in is: ");            
-    print_addr(v_addr);                                                 // Call function to output the virtual address neatly
+        printf("The virtual memory address you keyed in is:  ");            
+        print_addr(v_addr);                                                 // Call function to output the virtual address neatly
 
-    // Check existence in page and translate via page table
-    int8_t frame = translate_to_frame_page(vpn);
+        // Check existence in page and translate via page table
+        int8_t frame = translate_to_frame_page(vpn);
 
-    if (frame < 0)                                                      // Perform page existence check
-    {
-        printf("Page does not exist, Virtual page number %d not in memory.\n", vpn);    // Print error message if it do not exist
-        return 0;                                                       // Terminate the program
+        if (frame < 0)                                                      // Perform page existence check
+        {
+            printf("Page does not exist, Virtual page number %d not in memory.\n", vpn);    // Print error message if it do not exist
+            return 0;                                                       // Terminate the program
+        }
+
+        // 13-bit physical address      <- 5 bits ->|<- 8 bits->
+        int16_t p_addr = get_addr(frame, offset);                           // Call function to produce physical address with frame and offset
+
+        printf("Physical memory address after paging is: ");
+        print_addr(p_addr);                                                 // Call function to output physical address neatly
     }
-
-    // 13-bit physical address      <- 5 bits ->|<- 8 bits->
-    int16_t p_addr = get_addr(frame, offset);                           // Call function to produce physical address with frame and offset
-
-    printf("Physical memory address after paging is: ");
-    print_addr(p_addr);                                                 // Call function to output physical address neatly
-
+    // --- End timer ---
+    clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+    double elapsed = get_elapsed(start,end);
+    printf(" Total time taken to execute %d times = %.9f milliseconds\n", iterations, elapsed);
+    printf(" Average Latency = %.9f milliseconds\n", elapsed/iterations);
     return 0;                                                           // Terminate the program
 }
