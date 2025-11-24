@@ -1,23 +1,49 @@
-Total_instructions = 0
-Execution_time = 0.0
-Clock_cycle_time = float(input("Enter the value of clock cycle time (in second): "))
+# Task1-4.py
+import time
 
-Instruction1_count = int(input("Enter the counts of type 1 intstruction: "))
-CPI1 = float(input("Enter the CPI of type 1 instruction: "))
+# --- Helper function for validated input ---
+def get_float(prompt):
+    while True:
+        try:
+            return float(input(prompt))
+        except ValueError:
+            print("Invalid input. Please enter a valid number.")
 
-Instruction2_count = int(input("Enter the counts of type 2 intstruction: "))
-CPI2 = float(input("Enter the CPI of type 2 instruction: "))
+def get_int(prompt):
+    while True:
+        try:
+            return int(input(prompt))
+        except ValueError:
+            print("Invalid input. Please enter a valid integer.")
 
-Instruction3_count = int(input("Enter the counts of type 3 intstruction: "))
-CPI3 = float(input("Enter the CPI of type 3 instruction: "))
+# --- Input phase (validated) ---
+Clock_cycle_time = get_float("Enter the value of clock cycle time (in second): ")
 
-Instruction4_count = int(input("Enter the counts of type 4 intstruction: "))
-CPI4 = float(input("Enter the CPI of type 4 instruction: "))
+Instruction1_count = get_int("Enter the counts of type 1 instruction: ")
+CPI_1 = get_float("Enter the CPI of type 1 instruction: ")
 
-Total_instructions += Instruction1_count * CPI1
-Total_instructions += Instruction2_count * CPI2
-Total_instructions += Instruction3_count * CPI3
-Total_instructions += Instruction4_count * CPI4
+Instruction2_count = get_int("Enter the counts of type 2 instruction: ")
+CPI_2 = get_float("Enter the CPI of type 2 instruction: ")
 
+Instruction3_count = get_int("Enter the counts of type 3 instruction: ")
+CPI_3 = get_float("Enter the CPI of type 3 instruction: ")
+
+Instruction4_count = get_int("Enter the counts of type 4 instruction: ")
+CPI_4 = get_float("Enter the CPI of type 4 instruction: ")
+
+# --- Computation phase (timed) ---
+start = time.perf_counter()  # high-resolution timer
+
+Total_instructions = (
+    (Instruction1_count * CPI_1)
+    + (Instruction2_count * CPI_2)
+    + (Instruction3_count * CPI_3)
+    + (Instruction4_count * CPI_4)
+)
 Execution_time = Total_instructions * Clock_cycle_time
-print(f"The execution time of this software program is {Execution_time}")
+
+end = time.perf_counter()
+
+# --- Output phase ---
+print(f"\nThe execution time of this software program is {Execution_time:.6f} second.")
+print(f"Processing time: {(end - start) * 1000:.6f} ms")
