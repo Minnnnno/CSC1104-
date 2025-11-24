@@ -1,39 +1,70 @@
 #include <stdio.h>
+#include <time.h>
 
-int main(){
+// Helper function to compute time difference (no change)
+static inline double secdiff(struct timespec a, struct timespec b){
+    return (b.tv_sec - a.tv_sec) + (b.tv_nsec - a.tv_nsec)/1e9;
+}
+
+// --- Helper functions for input validation ---
+double get_double(const char *prompt) {
+    double value;
+    int valid;
+    do {
+        printf("%s", prompt);
+        valid = scanf("%lf", &value);
+        while (getchar() != '\n'); // clear input buffer
+        if (valid != 1) {
+            printf("Invalid input. Please enter a valid number.\n");
+        }
+    } while (valid != 1);
+    return value;
+}
+
+long get_long(const char *prompt) {
+    long value;
+    int valid;
+    do {
+        printf("%s", prompt);
+        valid = scanf("%ld", &value);
+        while (getchar() != '\n'); // clear input buffer
+        if (valid != 1) {
+            printf("Invalid input. Please enter a valid integer.\n");
+        }
+    } while (valid != 1);
+    return value;
+}
+
+int main(void){
     long Instruction1_count, Instruction2_count, Instruction3_count, Instruction4_count;
-    double CPI1, CPI2, CPI3, CPI4;
-    double Clock_cycle_time, Execution_time;
-    double Total_instructions = 0.0;
+    double CPI_1, CPI_2, CPI_3, CPI_4, Clock_cycle_time, Execution_time, Total_clock_cycle = 0.0;
 
-    printf("Enter the value of clock cycle time (in second): ");
-    scanf("%lf", &Clock_cycle_time);
+    // --- Input phase (validated) ---
+    Clock_cycle_time = get_double("Enter the value of clock cycle time (in second): ");
+    Instruction1_count = get_long("Enter the counts of type 1 instruction: ");
+    CPI_1 = get_double("Enter the CPI of type 1 instruction: ");
+    Instruction2_count = get_long("Enter the counts of type 2 instruction: ");
+    CPI_2 = get_double("Enter the CPI of type 2 instruction: ");
+    Instruction3_count = get_long("Enter the counts of type 3 instruction: ");
+    CPI_3 = get_double("Enter the CPI of type 3 instruction: ");
+    Instruction4_count = get_long("Enter the counts of type 4 instruction: ");
+    CPI_4 = get_double("Enter the CPI of type 4 instruction: ");
 
-    printf("Enter the counts of type 1 instruction: ");
-    scanf("%ld", &Instruction1_count);
-    printf("Enter the CPI of type 1 instruction: ");
-    scanf("%lf", &CPI1);
+    // --- Computation phase (timed) ---
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &t0);   // start timing
 
-    printf("Enter the counts of type 2 instruction: ");
-    scanf("%ld", &Instruction2_count);
-    printf("Enter the CPI of type 2 instruction: ");
-    scanf("%lf", &CPI2);
+    Total_clock_cycle = Instruction1_count*CPI_1
+                      + Instruction2_count*CPI_2
+                      + Instruction3_count*CPI_3
+                      + Instruction4_count*CPI_4;
+    Execution_time = Total_clock_cycle * Clock_cycle_time;
 
-    printf("Enter the counts of type 3 instruction: ");
-    scanf("%ld", &Instruction3_count);
-    printf("Enter the CPI of type 3 instruction: ");
-    scanf("%lf", &CPI3);
+    clock_gettime(CLOCK_MONOTONIC_RAW, &t1);   // end timing
 
-    printf("Enter the counts of type 4 instruction: ");
-    scanf("%ld", &Instruction4_count);
-    printf("Enter the CPI of type 4 instruction: ");
-    scanf("%lf", &CPI4);
-    
-    Total_instructions += Instruction1_count * CPI1;
-    Total_instructions += Instruction2_count * CPI2;
-    Total_instructions += Instruction3_count * CPI3;
-    Total_instructions += Instruction4_count * CPI4;
+    // --- Output phase ---
+    printf("\nThe execution time of this software program is %lf second.\n", Execution_time);
+    printf("Processing time: %.6f ms\n", secdiff(t0,t1)*1e3);
 
-    Execution_time = Total_instructions * Clock_cycle_time;
-    printf("The execution time of this software program is %lf second.", Execution_time);
+    return 0;
 }
