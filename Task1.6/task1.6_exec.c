@@ -71,7 +71,7 @@ void get_virtual_page(char vpn[6], char offset[9])
     } while (!flag);
 }
 
-int8_t bin_to_dec(const char *bitstring) {
+int16_t bin_to_dec(const char *bitstring) {
     return (int8_t)strtol(bitstring, NULL, 2);
 }
 

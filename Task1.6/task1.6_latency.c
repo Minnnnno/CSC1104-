@@ -67,7 +67,7 @@ void get_virtual_page(char vpn[6], char offset[9])                  // Asking fo
 
 }
 
-int8_t bin_to_dec(const char *bitstring)                                // Function to convert binary to decimal
+int16_t bin_to_dec(const char *bitstring)                                // Function to convert binary to decimal
 {
     return (int)strtol(bitstring, NULL, 2);                             // Produce the result of computation of conversion
 }
